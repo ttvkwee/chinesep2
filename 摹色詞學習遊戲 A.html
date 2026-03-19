@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>摹色詞學習遊戲</title>
+  <style>
+    body { font-family: "Microsoft JhengHei", sans-serif; background: #fdf6e3; text-align: center; }
+    h1 { color: #333; }
+    .card {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      margin: 15px;
+      padding: 15px;
+      display: inline-block;
+      width: 280px;
+      cursor: pointer;
+      background: #fff;
+      vertical-align: top;
+    }
+    .card:hover { background: #f0f8ff; }
+    .word { font-size: 22px; font-weight: bold; color: #2a4d69; }
+    .explain { margin-top: 10px; font-size: 16px; text-align: left; }
+    img { width: 100%; border-radius: 8px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🎨 摹色詞學習遊戲</h1>
+  <p>點擊詞語卡片，查看核心感覺、適用場景和例句！</p>
+
+  <div id="game"></div>
+
+  <script>
+    const words = [
+      { word: "黑漆漆", feeling: "完全看不見、一片黑，帶點昏暗、壓抑感", scene: "夜晚、山洞、沒有燈光的地方", example: "夜晚的郊外黑漆漆，連星星都看不見。", img: "images/black_dark_cave.png" },
+      { word: "黑沉沉", feeling: "黑得厚重、有壓迫感，像烏雲壓頂", scene: "下雨前的天空、傍晚的天色", example: "快要下雨了，天空黑沉沉的。", img: "images/dark_clouds.png" },
+      { word: "烏溜溜", feeling: "黑得發亮、靈動，帶活潑、可愛感", scene: "眼睛、頭髮", example: "妹妹有一雙烏溜溜的大眼睛。", img: "images/cute_eyes.png" },
+      { word: "黑溜溜", feeling: "黑得明亮、有神，比烏溜溜更有神采", scene: "眼睛（精神、有活力）", example: "弟弟的眼睛黑溜溜，十分有神。", img: "images/bright_eyes.png" },
+      { word: "藍晶晶", feeling: "藍得透亮、有光澤，像寶石/水晶一樣閃", scene: "晴天的天空、清澈的湖水", example: "晴天的天空藍晶晶，明亮又美麗。", img: "images/blue_sky.png" },
+      { word: "藍湛湛", feeling: "藍得深邃、濃郁，像深海/藍寶石一樣厚重", scene: "遠處的天空、傍晚的藍天", example: "遠處的天空藍湛湛，像一片藍寶石。", img: "images/deep_blue.png" },
+      { word: "紅丹丹", feeling: "紅得鮮亮，充滿活力", scene: "成熟的水果、花朵", example: "成熟的蘋果紅丹丹，看起來很美味。", img: "images/red_apple.png" },
+      { word: "白茫茫", feeling: "白得一片，廣闊無邊", scene: "下雪後的景象", example: "下雪後，到處都是白茫茫的一片。", img: "images/snow_scene.png" },
+      { word: "黃澄澄", feeling: "黃得鮮亮、飽滿", scene: "成熟的橙子、稻穀", example: "成熟的橙子黃澄澄，香甜又多汁。", img: "images/orange.png" }
+    ];
+
+    function showCards() {
+      const gameDiv = document.getElementById("game");
+      gameDiv.innerHTML = words.map((w, i) => `
+        <div class="card" onclick="toggleExplain(${i})">
+          <div class="word">${w.word}</div>
+          <img src="${w.img}" alt="${w.word}">
+          <div id="explain${i}" class="explain hidden">
+            <p><b>核心感覺：</b>${w.feeling}</p>
+            <p><b>適用場景：</b>${w.scene}</p>
+            <p><b>例句：</b>${w.example}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function toggleExplain(i) {
+      const explainDiv = document.getElementById("explain"+i);
+      explainDiv.classList.toggle("hidden");
+    }
+
+    showCards();
+  </script>
+</body>
+</html>

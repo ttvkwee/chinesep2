@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>摹色詞遊戲 - 多項選擇</title>
+  <style>
+    body { font-family: "Microsoft JhengHei", sans-serif; background: #fdf6e3; text-align: center; }
+    h1 { color: #333; }
+    .question { margin: 20px; font-size: 22px; }
+    .options { margin: 10px; }
+    button { margin: 5px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
+    .correct { background-color: #90ee90; }
+    .wrong { background-color: #ffcccb; }
+    #score { font-size: 20px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🎨 摹色詞遊戲 (多項選擇)</h1>
+  <div id="game"></div>
+  <div id="score">得分：0</div>
+
+  <script>
+    const questions = [
+      { text: "夜晚的郊外＿＿＿＿，安靜又漆黑。", answer: "黑漆漆", choices: ["黑漆漆","紅丹丹","藍晶晶"] },
+      { text: "快要下雨了，天空＿＿＿＿的。", answer: "黑沉沉", choices: ["黑沉沉","黃澄澄","白茫茫"] },
+      { text: "妹妹有一雙＿＿＿＿的大眼睛，真可愛。", answer: "烏溜溜", choices: ["烏溜溜","藍湛湛","紅丹丹"] },
+      { text: "弟弟的眼睛＿＿＿＿，十分有神。", answer: "黑溜溜", choices: ["黑溜溜","白茫茫","黃澄澄"] },
+      { text: "成熟的蘋果＿＿＿＿，看起來很美味。", answer: "紅丹丹", choices: ["紅丹丹","黑漆漆","藍晶晶"] },
+      { text: "下雪後，到處都是＿＿＿＿的一片。", answer: "白茫茫", choices: ["白茫茫","黃澄澄","黑沉沉"] },
+      { text: "晴天的天空＿＿＿＿，明亮又美麗。", answer: "藍晶晶", choices: ["藍晶晶","紅丹丹","黑溜溜"] },
+      { text: "遠處的天空＿＿＿＿，像一片藍寶石。", answer: "藍湛湛", choices: ["藍湛湛","黑漆漆","黃澄澄"] },
+      { text: "成熟的橙子＿＿＿＿，香甜又多汁。", answer: "黃澄澄", choices: ["黃澄澄","烏溜溜","藍晶晶"] }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function showQuestion() {
+      const q = questions[current];
+      const gameDiv = document.getElementById("game");
+      gameDiv.innerHTML = `
+        <div class="question">${q.text}</div>
+        <div class="options">
+          ${q.choices.map(opt => `<button onclick="checkAnswer('${opt}')">${opt}</button>`).join("")}
+        </div>
+      `;
+    }
+
+    function checkAnswer(choice) {
+      const q = questions[current];
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach(btn => {
+        if (btn.innerText === q.answer) btn.classList.add("correct");
+        else if (btn.innerText === choice) btn.classList.add("wrong");
+        btn.disabled = true;
+      });
+      if (choice === q.answer) score++;
+      document.getElementById("score").innerText = "得分：" + score;
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) showQuestion();
+        else document.getElementById("game").innerHTML = "<h2>🎉 恭喜完成所有題目！</h2>";
+      }, 1000);
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
