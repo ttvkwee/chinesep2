@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>小攝影師的魔力詞典 - 穩定版</title>
+    <style>
+        :root { --primary: #4A90E2; --success: #45B649; --error: #D32F2F; --bg: #F5F7FA; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: var(--bg); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        #game-box { background: white; width: 100%; max-width: 850px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 30px; text-align: center; }
+        .stats { display: flex; justify-content: space-between; font-size: 1.2rem; margin-bottom: 20px; font-weight: bold; color: #555; }
+        .scene-container { background: #333; border-radius: 15px; overflow: hidden; position: relative; height: 400px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center;}
+        .scene-container img { width: 100%; height: 100%; object-fit: cover; }
+        .description-overlay { position: absolute; bottom: 0; background: rgba(0,0,0,0.75); color: white; width: 100%; padding: 15px; font-size: 1.2rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 25px; }
+        .word-card { background: white; border: 2px solid #ddd; padding: 18px; border-radius: 12px; cursor: pointer; font-size: 1.6rem; font-weight: bold; transition: all 0.2s; }
+        .word-card:hover { border-color: var(--primary); background: #f0f7ff; }
+        .word-card.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .word-card.wrong { background: var(--error) !important; color: white; border-color: var(--error); }
+        #feedback { margin-top: 20px; font-size: 1.3rem; min-height: 1.5em; font-weight: bold; }
+        button#retry { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="game-box">
+    <h1>📷 詞語攝影師</h1>
+    <div class="stats">
+        <span>題目: <span id="progress">1</span> / 11</span>
+        <span>積分: <span id="score">0</span></span>
+    </div>
+
+    <div class="scene-container">
+        <img id="scene-img" src="" alt="讀取中...">
+        <div class="description-overlay" id="scene-desc">正在尋找最適合的照片...</div>
+    </div>
+
+    <div id="feedback"></div>
+    <div class="options-grid" id="options"></div>
+</div>
+
+<script>
+    const gameData = [
+        { term: "黑壓壓", keyword: "crowd,people", desc: "廣場上滿滿都是人群，密密麻麻地遮住了地面。", sense: "形容數量極多、很密集的樣子。" },
+        { term: "黑漆漆", keyword: "cave,dark", desc: "山洞深處一點光都沒有，伸手不見五指。", sense: "形容完全沒有光亮，一片漆黑。" },
+        { term: "黑沉沉", keyword: "storm,clouds", desc: "暴雨前的烏雲壓得很低，天空看起來沉甸甸的。", sense: "形容黑得厚重、有壓迫感。" },
+        { term: "藍晶晶", keyword: "lake,clear,blue", desc: "晴朗天空下的湖水，像寶石一樣閃閃發光。", sense: "形容藍得透亮、有光澤。" },
+        { term: "藍湛湛", keyword: "ocean,deep,blue", desc: "遠方深邃的大海，顏色濃郁得像一塊藍色墨玉。", sense: "形容顏色深厚、純淨而濃郁。" },
+        { term: "白茫茫", keyword: "snow,field", desc: "大雪舖滿了平原，大地跟天空看起來都沒有邊界。", sense: "形容一眼望去全是白色，廣闊而模糊。" },
+        { term: "白濛濛", keyword: "fog,mist,forest", desc: "早晨的濃霧籠罩著森林，景物看起來濕濕糊糊的。", sense: "形容因為水氣、煙霧而看不清楚。" },
+        { term: "白皚皚", keyword: "mountain,snow,peak", desc: "高山頂部覆蓋著潔白、乾淨且厚實的積雪。", sense: "形容雪堆積得潔白、厚實的樣子。" },
+        { term: "紅艷豔", keyword: "sunrise,red", desc: "太陽剛昇起，紅得非常鮮明奪目。", sense: "形容顏色非常鮮紅、美麗。" },
+        { term: "紅通通", keyword: "apple,red", desc: "熟透的大蘋果掛在樹上，顏色火紅溫潤。", sense: "形容像火一樣紅，帶有溫潤感。" },
+        { term: "紅撲撲", keyword: "child,face", desc: "小弟弟在公園跑完步，雙臉充滿了健康的紅潤。", sense: "專門形容臉部紅潤健康的樣子。" }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    function initLevel() {
+        const data = gameData[currentIdx];
+        const feedback = document.getElementById('feedback');
+        const options = document.getElementById('options');
+        
+        // Update Image using a more reliable keyword-based URL
+        // Adding a timestamp ensures the browser doesn't cache the previous image
+        const imageUrl = `https://images.unsplash.com/photo-1?w=800&q=80&${data.keyword}&sig=${Math.random()}`;
+        document.getElementById('scene-img').src = `https://loremflickr.com/800/500/${data.keyword}`;
+        
+        document.getElementById('scene-desc').innerText = `【觀察場景】${data.desc}`;
+        document.getElementById('progress').innerText = currentIdx + 1;
+        feedback.innerText = "";
+        options.innerHTML = "";
+        
+        let choices = [data.term];
+        const others = gameData.filter(d => d.term !== data.term).map(d => d.term);
+        while(choices.length < 4) {
+            let pick = others[Math.floor(Math.random() * others.length)];
+            if(!choices.includes(pick)) choices.push(pick);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach(c => {
+            const btn = document.createElement('div');
+            btn.className = 'word-card';
+            btn.innerText = c;
+            btn.onclick = () => {
+                if(c === data.term) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    document.getElementById('score').innerText = score;
+                    feedback.innerHTML = `<span style="color:var(--success)">太棒了！${data.sense}</span>`;
+                    document.querySelectorAll('.word-card').forEach(b => b.onclick = null);
+                    setTimeout(() => {
+                        currentIdx++;
+                        if(currentIdx < gameData.length) initLevel();
+                        else finishGame();
+                    }, 2000);
+                } else {
+                    btn.classList.add('wrong');
+                    feedback.innerHTML = `<span style="color:var(--error)">再看看照片的感覺，試試別的詞？</span>`;
+                }
+            };
+            options.appendChild(btn);
+        });
+    }
+
+    function finishGame() {
+        document.getElementById('game-box').innerHTML = `
+            <h2 style="font-size:2.5rem; color:var(--success)">🏆 挑戰成功！</h2>
+            <p style="font-size:1.5rem">你獲得了 ${score} 分！</p>
+            <p>你已經學會如何觀察世界並選擇正確的詞彙了。</p>
+            <button id="retry" onclick="location.reload()">重新挑戰</button>
+        `;
+    }
+
+    initLevel();
+</script>
+</body>
+</html>
